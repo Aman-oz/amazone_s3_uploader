@@ -47,11 +47,12 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(project(":s3uploader"))
+    //implementation ("com.github.Aman-oz:amazone_s3_uploader:v0.0.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    implementation(libs.easypermissions)
+    implementation(libs.easypermissions )
 
     implementation (libs.aws.sdk.s3)
     implementation (libs.aws.sdk.cognito)

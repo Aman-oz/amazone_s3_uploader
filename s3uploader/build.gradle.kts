@@ -47,14 +47,10 @@ dependencies {
     implementation (libs.aws.cognitoidentityprovider)
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                groupId = "com.aman.s3uploader"
-                artifactId = "s3uploader"
-                version = "0.0.1"
-
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            afterEvaluate {
                 from(components["release"])
             }
         }
