@@ -12,6 +12,7 @@ constraintlayout = "2.1.4"
 awsSdkVersion = "2.6.31"
 awsCognitoIdentityProvider = "2.2.+"
 easypermissions = "3.0.0"
+s3Uploader = "v1.1.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -26,6 +27,7 @@ aws-sdk-s3 = { group = "com.amazonaws", name = "aws-android-sdk-s3", version.ref
 aws-sdk-cognito = { group = "com.amazonaws", name = "aws-android-sdk-cognito", version.ref = "awsSdkVersion" }
 aws-cognitoidentityprovider = { group = "com.amazonaws", name = "aws-android-sdk-cognitoidentityprovider", version.ref = "awsCognitoIdentityProvider" }
 easypermissions = { group = "pub.devrel", name = "easypermissions", version.ref = "easypermissions" }
+amazone-s3-uploader = { group = "com.github.Aman-oz", name = "amazone_s3_uploader", version.ref = "s3Uploader" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

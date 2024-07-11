@@ -11,8 +11,9 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import com.aman.amazones3uploader.databinding.ActivityMainBinding
 import com.aman.amazones3uploader.utils.AWSKeys
 import com.aman.amazones3uploader.utils.getFilePathFromURI
@@ -31,12 +32,15 @@ class MainActivity : AppCompatActivity() {
     private var urlFromS3: String? = null
     private lateinit var imageUri: Uri
 
-    private val SELECT_PICTURE = 1
     private var count: Int = 0
 
     private val progressDialog: ProgressDialog by lazy {
         ProgressDialog(this)
     }
+
+    private lateinit var permissionLauncher: ActivityResultLauncher<String>
+    private lateinit var imagePickerLauncher: ActivityResultLauncher<Intent>
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,12 +48,30 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         initViews()
+        initLaunchers()
         listeners()
 
     }
 
     private fun initViews() {
         s3uploaderObj = S3Uploader(this)
+    }
+
+    private fun initLaunchers() {
+        permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                chooseImage()
+                Log.v(TAG, "Permission is granted")
+            } else {
+                Log.e(TAG, "Please click again and select allow to choose profile picture")
+            }
+        }
+
+        imagePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK && result.data != null) {
+                onPictureSelect(result.data!!)
+            }
+        }
     }
 
     private fun listeners() {
@@ -76,31 +98,38 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isStoragePermissionGranted() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED
-                ) {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+
+                if (checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
                     chooseImage()
                 } else {
-                    chooseImage()
                     Log.v(TAG, "Permission is revoked")
-                    ActivityCompat.requestPermissions(
-                        this,
-                        arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                        1
-                    )
+                    permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
                 }
-            } else {
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+
+                if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    chooseImage()
+                } else {
+                    Log.v(TAG, "Permission is revoked")
+                    permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+            }
+            else -> {
+
                 Log.v(TAG, "Permission is granted")
                 chooseImage()
             }
+        }
     }
 
     private fun chooseImage() {
         val intent = Intent()
-        intent.setType("image/*")
-        intent.setAction(Intent.ACTION_GET_CONTENT)
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE)
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        imagePickerLauncher.launch(Intent.createChooser(intent, "Select Picture"))
     }
 
     override fun onRequestPermissionsResult(
@@ -109,9 +138,9 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             chooseImage()
-            Log.e(TAG, "Permission: " + permissions[0] + "was " + grantResults[0])
+            Log.e(TAG, "Permission: " + permissions[0] + " was " + grantResults[0])
         } else {
             Log.e(TAG, "Please click again and select allow to choose profile picture")
         }
@@ -176,15 +205,6 @@ class MainActivity : AppCompatActivity() {
     private fun hideLoading() {
         if (progressDialog != null && progressDialog.isShowing) {
             progressDialog.dismiss()
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == SELECT_PICTURE) {
-            if (resultCode == RESULT_OK && data != null) {
-                onPictureSelect(data)
-            }
         }
     }
 
