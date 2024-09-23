@@ -31,4 +31,12 @@ object S3Utils {
         Log.e("s", url.toString())
         return url.toString()
     }
+    fun generateS3ShortUrl(region: Regions, bucketName: String, path: String): String {
+        val file = File(path)
+        val fileName = file.name
+        val mediaUrl = "https://$bucketName.s3.${region.getName()}.amazonaws.com/Images/$fileName"
+
+        Log.d(TAG, "Generated S3 URL: $mediaUrl")
+        return mediaUrl
+    }
 }

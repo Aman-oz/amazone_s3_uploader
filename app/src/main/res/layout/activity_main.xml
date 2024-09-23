@@ -16,6 +16,18 @@
         app:layout_constraintBottom_toTopOf="@id/linearLayout"
         />
 
+    <EditText
+        android:id="@+id/edtS3Url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="s3Url"
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        android:background="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"

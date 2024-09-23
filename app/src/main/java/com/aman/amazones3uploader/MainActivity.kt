@@ -172,9 +172,11 @@ class MainActivity : AppCompatActivity() {
                 override fun onUploadSuccess(response: String) {
                     if (response.equals("Success", ignoreCase = true)) {
                         hideLoading()
-                        urlFromS3 = S3Utils.generateS3ShareUrl(applicationContext,AWSKeys.MY_REGION, AWSKeys.BUCKET_NAME,path, AWSKeys.COGNITO_POOL_ID)
+//                        urlFromS3 = S3Utils.generateS3ShareUrl(applicationContext,AWSKeys.MY_REGION, AWSKeys.BUCKET_NAME,path, AWSKeys.COGNITO_POOL_ID)
+                        urlFromS3 = S3Utils.generateS3ShortUrl(AWSKeys.MY_REGION, AWSKeys.BUCKET_NAME,path)
                         if (!TextUtils.isEmpty(urlFromS3)) {
                             Log.d(TAG, "onUploadSuccess: Image Url: $urlFromS3")
+                            binding.edtS3Url.setText(urlFromS3.toString())
                             Toast.makeText(
                                 this@MainActivity,
                                 "Uploaded Successfully!!",
