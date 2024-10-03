@@ -10,6 +10,9 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.model.ObjectMetadata
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.UUID
 
 class S3Uploader(private val context: Context) {
 
@@ -23,9 +26,14 @@ class S3Uploader(private val context: Context) {
     fun initUpload(region: Regions, bucketName: String,filePath: String, cognitoPoolId: String) {
         transferUtility = AmazonUtil.getTransferUtility(context, region, cognitoPoolId)
         val file = File(filePath)
+
+        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val uniqueFileName = "${file.name}_${UUID.randomUUID()}_${timestamp}".replace(" ", "_").replace("-", "_")
+        S3Utils.uniqueFileName = uniqueFileName
+
         val myObjectMetadata = ObjectMetadata()
         myObjectMetadata.contentType = "image/png"
-        val mediaUrl = "Images/" + file.name
+        val mediaUrl = "Images/${uniqueFileName}"
         Log.d(TAG, "initUpload: File: $file mediaUrl: $mediaUrl")
         val observer = transferUtility.upload(bucketName, mediaUrl, file)
         observer.setTransferListener(UploadListener())

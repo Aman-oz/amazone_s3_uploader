@@ -11,6 +11,8 @@ import java.net.URL
 object S3Utils {
     private val TAG = S3Utils::class.java.simpleName
 
+    var uniqueFileName: String = ""
+
     /**
      * Method to generate a presigned URL for the image
      * @param applicationContext context
@@ -34,7 +36,7 @@ object S3Utils {
     fun generateS3ShortUrl(region: Regions, bucketName: String, path: String): String {
         val file = File(path)
         val fileName = file.name
-        val mediaUrl = "https://$bucketName.s3.${region.getName()}.amazonaws.com/Images/$fileName"
+        val mediaUrl = "https://$bucketName.s3.${region.getName()}.amazonaws.com/Images/$uniqueFileName"
 
         Log.d(TAG, "Generated S3 URL: $mediaUrl")
         return mediaUrl
