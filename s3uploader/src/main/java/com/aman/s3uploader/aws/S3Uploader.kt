@@ -97,22 +97,20 @@ class S3Uploader(private val context: Context) {
 
         } catch (e: IllegalArgumentException) {
             Log.e(TAG, "initUpload: Invalid argument - ${e.message}")
-            // Handle specific case when file path is invalid
         } catch (e: FileNotFoundException) {
             Log.e(TAG, "initUpload: File not found - ${e.message}")
-            // Handle case when the file doesn't exist
         } catch (e: AmazonServiceException) {
             Log.e(TAG, "initUpload: Amazon service error - ${e.message}")
-            // Handle errors related to AWS S3 service, such as permission issues
         } catch (e: AmazonClientException) {
             Log.e(TAG, "initUpload: Amazon client error - ${e.message}")
-            // Handle errors that occur when the client can't connect to AWS S3
         } catch (e: Exception) {
             Log.e(TAG, "initUpload: Unexpected error occurred - ${e.message}")
         }
     }
 
-
+    /**Upload Listener
+     * Listens for upload events and handles them accordingly.
+     * */
 
     private inner class UploadListener : TransferListener {
 
@@ -148,7 +146,6 @@ class S3Uploader(private val context: Context) {
     fun setOnS3UploadDone(s3UploadInterface: S3UploadInterface) {
         this.s3UploadInterface = s3UploadInterface
     }
-
 
     interface S3UploadInterface {
         fun onUploadSuccess(response: String)

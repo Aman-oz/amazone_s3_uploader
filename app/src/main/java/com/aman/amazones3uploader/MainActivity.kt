@@ -163,7 +163,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun uploadImageTos3(imageUri: Uri) {
         getFilePathFromURI(this,imageUri)?.let {
-//            val path: String = getFilePathFromURI(this,imageUri)!!
             if (it != null) {
                 showLoading()
                 Log.d(TAG, "uploadImageTos3: Path: $it")

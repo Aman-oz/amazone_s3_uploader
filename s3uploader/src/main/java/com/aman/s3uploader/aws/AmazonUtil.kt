@@ -14,7 +14,6 @@ import java.util.UUID
 
 object AmazonUtil {
 
-    // We only need one instance of the clients and credentials provider
     private var sS3Client: AmazonS3Client? = null
     private var sCredProvider: CognitoCachingCredentialsProvider? = null
     private var sTransferUtility: TransferUtility? = null
@@ -24,6 +23,8 @@ object AmazonUtil {
      * constructed using the given Context.
      *
      * @param context An Context instance.
+     * @param region The AWS region.
+     * @param cognitoPoolId The Cognito pool ID.
      * @return A default credential provider.
      */
     fun getCredProvider(context: Context, region: Regions, cognitoPoolId: String): CognitoCachingCredentialsProvider {
@@ -43,6 +44,8 @@ object AmazonUtil {
      * Context.
      *
      * @param context An Context instance.
+     * @param region The AWS region.
+     * @param cognitoPoolId The Cognito pool ID.
      * @return A default S3 client.
      */
     fun getS3Client(context: Context, region: Regions, cognitoPoolId: String): AmazonS3Client {
@@ -57,7 +60,9 @@ object AmazonUtil {
      * Gets an instance of the TransferUtility which is constructed using the
      * given Context
      *
-     * @param context
+     * @param context An Context instance.
+     * @param region The AWS region.
+     * @param cognitoPoolId The Cognito pool ID.
      * @return a TransferUtility instance
      */
     fun getTransferUtility(context: Context, region: Regions, cognitoPoolId: String): TransferUtility {

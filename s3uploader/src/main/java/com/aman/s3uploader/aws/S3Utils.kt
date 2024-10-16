@@ -16,7 +16,9 @@ object S3Utils {
     /**
      * Method to generate a presigned URL for the image
      * @param applicationContext context
+     * @param region AWS region
      * @param path image path
+     * @param cognitoPoolId AWS Cognito pool ID
      * @return presigned URL
      */
     fun generateS3ShareUrl(applicationContext: Context, region: Regions, bucketName: String, path: String, cognitoPoolId: String): String {
@@ -33,6 +35,15 @@ object S3Utils {
         Log.e("s", url.toString())
         return url.toString()
     }
+
+    /**
+     * Method to generate a short URL for the image
+     * @param region AWS region
+     * @param bucketName AWS S3 bucket name
+     * @param path image path
+     * @return short URL as a string
+     * */
+
     fun generateS3ShortUrl(region: Regions, bucketName: String, path: String): String {
         val file = File(path)
         val fileName = file.name

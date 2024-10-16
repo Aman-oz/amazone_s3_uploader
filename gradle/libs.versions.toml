@@ -12,7 +12,7 @@ constraintlayout = "2.1.4"
 awsSdkVersion = "2.6.31"
 awsCognitoIdentityProvider = "2.2.+"
 easypermissions = "3.0.0"
-s3Uploader = "v_1.1.8"
+s3Uploader = "v_1.1.9"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
