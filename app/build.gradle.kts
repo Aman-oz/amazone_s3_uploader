@@ -11,8 +11,8 @@ android {
         applicationId = "com.aman.amazones3uploader"
         minSdk = 21
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.4"
+        versionCode = 3
+        versionName = "1.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -55,8 +55,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation(project(":s3uploader"))
-//    implementation (libs.amazone.s3.uploader)
+//    implementation(project(":s3uploader"))
+    implementation (libs.amazone.s3.uploader)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
