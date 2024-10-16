@@ -1,9 +1,11 @@
 package com.aman.s3uploader.aws
 
 import android.content.Context
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.amazonaws.AmazonClientException
 import com.amazonaws.AmazonServiceException
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
@@ -13,6 +15,7 @@ import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.model.ObjectMetadata
 import java.io.File
 import java.io.FileNotFoundException
+import java.net.URLConnection
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -22,6 +25,9 @@ class S3Uploader(private val context: Context) {
 
     private lateinit var transferUtility: TransferUtility
     var s3UploadInterface: S3UploadInterface? = null
+    private val internetManager: InternetManager by lazy {
+        InternetManager(context)
+    }
 
     /**
      * Initiates the upload of a file to S3.
@@ -63,17 +69,24 @@ class S3Uploader(private val context: Context) {
 
             val file = File(filePath)
             if (!file.exists() || !file.isFile) {
-                throw FileNotFoundException("File does not exist or is not a valid file")
+                throw FileNotFoundException("File does not exist or is not a valid file: -> $filePath\n---------Solution: Select a valid file----------\ne.g: -> /storage/emulated/0/Pictures/image.jpg\nKey Points:\n1. File should exist.\n2. File should be a valid image.\n3. Should be a storage path.\n4. Should not be a file uri or content uri.")
             }
 
             transferUtility = AmazonUtil.getTransferUtility(context, region, cognitoPoolId)
 
+            if (transferUtility == null) {
+                Log.e(TAG, "initUpload: TransferUtility initialization failed")
+                s3UploadInterface?.onUploadError("Initialization failed")
+                return
+            }
+
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-            val uniqueFileName = "${file.name}_${UUID.randomUUID()}_${timestamp}".replace(" ", "_").replace("-", "_")
+            val uniqueFileName = "${file.name}_${UUID.randomUUID()}_${timestamp}".replace(" ", "_").replace("-", "_").replace(".","_")
             S3Utils.uniqueFileName = uniqueFileName
 
+            val contentType = URLConnection.guessContentTypeFromName(filePath) ?: "image/*"
             val myObjectMetadata = ObjectMetadata().apply {
-                contentType = "image/png"
+                this.contentType = contentType
             }
 
             val mediaUrl = "Images/$uniqueFileName"
@@ -105,8 +118,8 @@ class S3Uploader(private val context: Context) {
 
         override fun onError(id: Int, e: Exception) {
             Log.e(TAG, "Error during upload: $id", e)
-            s3UploadInterface?.onUploadError(e.toString())
-            s3UploadInterface?.onUploadError("Error")
+            val errorMessage = "Upload failed: ${e.localizedMessage ?: "Unknown error"}"
+            s3UploadInterface?.onUploadError(errorMessage)
         }
 
         override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
@@ -117,8 +130,13 @@ class S3Uploader(private val context: Context) {
 
         override fun onStateChanged(id: Int, newState: TransferState) {
             Log.d(TAG, "onStateChanged: $id, $newState")
-            if (newState == TransferState.COMPLETED) {
-                s3UploadInterface?.onUploadSuccess("Success")
+
+            when (newState) {
+                TransferState.COMPLETED -> s3UploadInterface?.onUploadSuccess("Success")
+                TransferState.FAILED -> s3UploadInterface?.onUploadError("Upload failed")
+                TransferState.CANCELED -> s3UploadInterface?.onUploadError("Upload canceled")
+                TransferState.IN_PROGRESS -> Log.d(TAG, "Upload is in progress")
+                else -> Log.d(TAG, "Unhandled state: $newState")
             }
         }
     }

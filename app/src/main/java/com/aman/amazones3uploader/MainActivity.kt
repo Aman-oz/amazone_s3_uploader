@@ -162,37 +162,38 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun uploadImageTos3(imageUri: Uri) {
-        val path: String = getFilePathFromURI(this,imageUri)!!
-        if (path != null) {
-            showLoading()
-            Log.d(TAG, "uploadImageTos3: Path: $path")
-            s3uploaderObj.initUpload(AWSKeys.MY_REGION, AWSKeys.BUCKET_NAME, path, AWSKeys.COGNITO_POOL_ID)
-            s3uploaderObj.setOnS3UploadDone(object : S3Uploader.S3UploadInterface {
+        getFilePathFromURI(this,imageUri)?.let {
+//            val path: String = getFilePathFromURI(this,imageUri)!!
+            if (it != null) {
+                showLoading()
+                Log.d(TAG, "uploadImageTos3: Path: $it")
+                s3uploaderObj.initUpload(AWSKeys.MY_REGION, AWSKeys.BUCKET_NAME, it, AWSKeys.COGNITO_POOL_ID)
+                s3uploaderObj.setOnS3UploadDone(object : S3Uploader.S3UploadInterface {
 
-                override fun onUploadSuccess(response: String) {
-                    if (response.equals("Success", ignoreCase = true)) {
-                        hideLoading()
-//                        urlFromS3 = S3Utils.generateS3ShareUrl(applicationContext,AWSKeys.MY_REGION, AWSKeys.BUCKET_NAME,path, AWSKeys.COGNITO_POOL_ID)
-                        urlFromS3 = S3Utils.generateS3ShortUrl(AWSKeys.MY_REGION, AWSKeys.BUCKET_NAME,path)
-                        if (!TextUtils.isEmpty(urlFromS3)) {
-                            Log.d(TAG, "onUploadSuccess: Image Url: $urlFromS3")
-                            binding.edtS3Url.setText(urlFromS3.toString())
-                            Toast.makeText(
-                                this@MainActivity,
-                                "Uploaded Successfully!!",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                    override fun onUploadSuccess(response: String) {
+                        if (response.equals("Success", ignoreCase = true)) {
+                            hideLoading()
+                            urlFromS3 = S3Utils.generateS3ShortUrl(AWSKeys.MY_REGION, AWSKeys.BUCKET_NAME,it)
+                            if (!TextUtils.isEmpty(urlFromS3)) {
+                                Log.d(TAG, "onUploadSuccess: Image Url: $urlFromS3")
+                                binding.edtS3Url.setText(urlFromS3.toString())
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    "Uploaded Successfully!!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     }
-                }
 
-                override fun onUploadError(response: String) {
-                    hideLoading()
-                    Log.e(TAG, "Error Uploading $response")
-                }
-            })
-        } else {
-            Toast.makeText(this, "Null Path", Toast.LENGTH_SHORT).show()
+                    override fun onUploadError(response: String) {
+                        hideLoading()
+                        Log.e(TAG, "Error Uploading $response")
+                    }
+                })
+            } else {
+                Toast.makeText(this, "Null Path", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -209,5 +210,4 @@ class MainActivity : AppCompatActivity() {
             progressDialog.dismiss()
         }
     }
-
 }
